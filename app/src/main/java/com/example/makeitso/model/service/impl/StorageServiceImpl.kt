@@ -28,6 +28,7 @@ import com.google.firebase.firestore.ktx.toObjects
 import javax.inject.Inject
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.asDeferred
@@ -39,10 +40,7 @@ constructor(private val firestore: FirebaseFirestore, private val auth: AccountS
   StorageService {
 
   override val tasks: Flow<List<Task>>
-    get() =
-      auth.currentUser.flatMapLatest { user ->
-        currentCollection(user.id).snapshots().map { snapshot -> snapshot.toObjects() }
-      }
+    get() = emptyFlow()
 
   override suspend fun getTask(taskId: String): Task? =
     currentCollection(auth.currentUserId).document(taskId).get().await().toObject()
