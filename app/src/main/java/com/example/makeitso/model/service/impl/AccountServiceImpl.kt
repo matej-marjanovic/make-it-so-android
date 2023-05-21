@@ -54,12 +54,16 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
   }
 
   override suspend fun createAnonymousAccount() {
-    auth.signInAnonymously().await()
+    trace(CREATE_ANONYMOUS_ACCOUNT_TRACE) {
+      auth.signInAnonymously().await()
+    }
   }
 
   override suspend fun linkAccount(email: String, password: String) {
-    val credential = EmailAuthProvider.getCredential(email, password)
-    auth.currentUser!!.linkWithCredential(credential).await()
+    trace(LINK_ACCOUNT_TRACE) {
+      val credential = EmailAuthProvider.getCredential(email, password)
+      auth.currentUser!!.linkWithCredential(credential).await()
+    }
   }
 
   override suspend fun deleteAccount() {
@@ -67,16 +71,20 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
   }
 
   override suspend fun signOut() {
-    if (auth.currentUser!!.isAnonymous) {
-      auth.currentUser!!.delete()
+    trace(SIGN_OUT_TRACE) {
+      if (auth.currentUser!!.isAnonymous) {
+        auth.currentUser!!.delete()
+      }
+      auth.signOut()
+      // Sign the user back in anonymously.
+      createAnonymousAccount()
     }
-    auth.signOut()
 
-    // Sign the user back in anonymously.
-    createAnonymousAccount()
   }
 
   companion object {
     private const val LINK_ACCOUNT_TRACE = "linkAccount"
+    private const val SIGN_OUT_TRACE = "signOut"
+    private const val CREATE_ANONYMOUS_ACCOUNT_TRACE = "createAnonymousAccount"
   }
 }
