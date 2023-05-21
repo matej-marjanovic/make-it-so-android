@@ -72,11 +72,12 @@ fun TasksScreen(
 
       Spacer(modifier = Modifier.smallSpacer())
 
+      val options by viewModel.options
       LazyColumn {
         items(tasks.value, key = { it.id }) { taskItem ->
           TaskItem(
             task = taskItem,
-            options = listOf(),
+            options = options,
             onCheckChange = { viewModel.onTaskCheckChange(taskItem) },
             onActionClick = { action -> viewModel.onTaskActionClick(openScreen, taskItem, action) }
           )
