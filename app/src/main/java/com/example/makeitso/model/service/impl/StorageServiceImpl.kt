@@ -40,7 +40,13 @@ constructor(private val firestore: FirebaseFirestore, private val auth: AccountS
   StorageService {
 
   override val tasks: Flow<List<Task>>
-    get() = emptyFlow()
+    get() = auth.currentUser.flatMapLatest { user ->
+      currentCollection(user.id)
+        .snapshots()
+        .map {snapshot ->
+          snapshot.toObjects()
+        }
+    }
 
   override suspend fun getTask(taskId: String): Task? =
     currentCollection(auth.currentUserId).document(taskId).get().await().toObject()
